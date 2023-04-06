@@ -1,35 +1,69 @@
+using System;
 using UnityEngine;
 
-
-public class Dashing
+/// <summary>
+/// temporally disabled
+/// 
+/// </summary>
+public class Dashing : MonoBehaviour
 {
-
+    
     public Transform playerObj;
     public Rigidbody rb;
-    
-    public float dashForce = 20f;
+    private Player pl;
 
-
-    public float dashCd;
-    public float dashCdTimer;
-
-    public Dashing(Transform playerObj, Rigidbody rb)
+    public void Start()
     {
-        this.playerObj = playerObj;
-        this.rb = rb;
+        rb = GetComponent<Rigidbody>();
+        pl = GetComponent<Player>();
     }
-    
 
-    public void dashing()
+    public float dashForce = 50f;
+
+    public float dashDuration = 0.25f;
+    
+    public float dashCd = 1f;
+    public float dashCdTimer = 0f;
+
+    public void Update()
     {
+        if(Input.GetKeyDown(KeyCode.C))
+            Dash();
 
-        Vector3 dashDirection = playerObj.forward;
-        
-        rb.AddForce(dashDirection * dashForce, ForceMode.Impulse);
-        
+        if (dashCdTimer > 0)
+            dashCdTimer -= Time.deltaTime;
     }
-    
 
-    
+    public void Dash()
+    {
+        if (dashCdTimer > 0)
+        {
+            return;
+        }
+        else
+        {
+            dashCdTimer = dashCd;
+        }
+        
+        pl.dashing = true;
+        
+        Vector3 dashDirection = playerObj.forward * dashForce;
 
+        delayedForce = dashDirection;
+
+        Invoke(nameof(addDelayedForce),0.025f);
+        Invoke(nameof(ResetDash),dashDuration);
+    }
+
+    private Vector3 delayedForce;
+
+    private void addDelayedForce()
+    {
+        rb.AddForce(delayedForce,ForceMode.Impulse);
+    }
+
+    public void ResetDash()
+    {
+        pl.dashing = false;
+    }
 }

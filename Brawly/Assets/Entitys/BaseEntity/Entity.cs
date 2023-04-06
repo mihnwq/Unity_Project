@@ -5,7 +5,7 @@ using UnityEngine;
 public class Entity : MonoBehaviour
 { 
    public float health;
-   public float speed = 5f;
+   public float speed;
 
    public Rigidbody rb;
    
@@ -25,6 +25,8 @@ public class Entity : MonoBehaviour
   public Transform orientation;
 
   public Transform playerObj;
+
+  private Player pl;
     
 
     //grounded checks
@@ -35,9 +37,9 @@ public class Entity : MonoBehaviour
     public bool grounded;
    
    public virtual void Start()
-    {
-        
-    }
+   {
+       pl = GetComponent<Player>();
+   }
 
     // Update is called once per frame
    public virtual void Update()
@@ -62,7 +64,8 @@ public class Entity : MonoBehaviour
        {
            Vector3 slopeDir = getSlopeMovementDir(moveDirection);
            
-           rb.AddForce(slopeDir * speed * 20f,ForceMode.Force);
+          // rb.AddForce(slopeDir * speed * 20f,ForceMode.Force);
+          rb.AddForce(slopeDir * speed * 5f,ForceMode.Force);
            ChainVars.UpdateDir(slopeDir);
 
            if (rb.velocity.y > 0)
@@ -88,9 +91,8 @@ public class Entity : MonoBehaviour
        
        grounded = Physics.Raycast(transform.position, Vector3.down, Height * 0.5f + 0.2f, whatIsGround);
        
-    //   grounded = Physics.Raycast(transform.position, Vector3.down, 0.6f, whatIsGround);
        
-       if (grounded)
+       if (pl.addDrag())
            rb.drag = groundDrag;
        else rb.drag = 0;
    }
@@ -116,7 +118,7 @@ public class Entity : MonoBehaviour
        }
    }
    
-   bool onSlope()
+  public bool onSlope()
    {
        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, Height * 0.5f + 0.3f))
        {

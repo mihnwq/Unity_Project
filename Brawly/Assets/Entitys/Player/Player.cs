@@ -8,18 +8,21 @@ public class Player : Entity
     public float jumpCooldown;
     public bool readyToJump;
 
-    public float moveSpeed = 6f;
-    public float sprintSpeed = 10f;
+    public float moveSpeed = 2.5f;
+    public float sprintSpeed = 3.5f;
 
-    public float crouchSpeed;
+    public float slideSpeed = 7f;
 
-    public float dashDuration = 0.25f;
+    public float dashSpeed = 10f;
+
+    private float desiredMoveSpeed;
+    private float lastDesiredMoveSpeed; 
     
+    public float crouchSpeed = 1.5f;
 
     Jumping jump;
     Crouching cr;
     Sliding sd;
-    Dashing ds;
 
     public enum movementState
     {
@@ -27,17 +30,21 @@ public class Player : Entity
         sprinting,
         crouching,
         sliding,
+        dash,
         air
     }
+
+    public bool dashing = false;
 
     public movementState state = movementState.walking;
 
     public override void Start()
     {
+        base.Start();
+        
         jump = new Jumping(transform, rb);
         cr = new Crouching(transform, rb);
         sd = new Sliding(orientation, playerObj, rb);
-        ds = new Dashing(playerObj, rb);
 
         health = 100;
 
@@ -65,7 +72,7 @@ public class Player : Entity
 
         base.Update();
         
-        Debug.Log(state);
+        Debug.Log(desiredMoveSpeed);
 
     }
 
@@ -79,75 +86,26 @@ public class Player : Entity
 
     public void checkCommands()
     {
-        checkMovement();
+        StateHandler();
         checkJump();
         checkCrouch();
         checkSlide();
-        checkDash();
     }
 
-    public void checkDash()
-    {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            speed = 9f;
-            
-            ds.dashing();
-            
-            Invoke(nameof(resetDash),dashDuration);
-        }
-        
-    }
-
-    public void resetDash()
-    {
-        speed = 6f;
-    }
+  
 
     public void checkCrouch()
     {
-        if (Input.GetKey(KeyCode.LeftControl) && state != movementState.air)
-        {
-            state = movementState.crouching;
-            speed = crouchSpeed;
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftControl) && state != movementState.air)
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             cr.crouch();
         }
-
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            state = movementState.walking;
-            cr.normalize();
-        }
     }
-
-    public void checkMovement()
-    {
-        if (grounded && state != movementState.crouching)
-        {
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                state = movementState.sprinting;
-                speed = sprintSpeed;
-            }
-            else if(state != movementState.crouching && speed != 9f)
-            {
-                state = movementState.walking;
-                speed = moveSpeed;
-            }
-        }
-        else if (state != movementState.crouching)
-        {
-            state = movementState.air;
-        }
-    }
+    
 
     public void checkJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && grounded && (state != movementState.crouching || state != movementState.sliding))
+        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && grounded)
         {
                 ChainVars.exitSlope = true;
             
@@ -169,11 +127,14 @@ public class Player : Entity
 
     public void checkSlide()
     {
-        if (Input.GetKeyDown(KeyCode.F) && (horizontal != 0 || vertical != 0) && rb.velocity.magnitude > 6f && state != movementState.air)
+        if (Input.GetKeyDown(KeyCode.F) && (horizontal != 0 || vertical != 0) && rb.velocity.magnitude > 3f)
         {
-             state = movementState.sliding;
-            
             sd.startSliding();
+        }
+        
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            cr.normalize();
         }
 
         if (Input.GetKeyUp(KeyCode.F) && sd.sliding)
@@ -186,12 +147,74 @@ public class Player : Entity
             sd.slidingMovement();
         }
     }
-
-    //de reintors la asta
-    public void slideSlopes()
+    
+    public IEnumerator smoothlyLerpSpeed()
     {
-        
+        float time = 0;
+        float difference = Mathf.Abs(desiredMoveSpeed = moveSpeed);
+        float startValue = moveSpeed;
+
+        while (time < difference)
+        {
+            speed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        speed = desiredMoveSpeed;
     }
 
+    private void StateHandler()
+    {
+        if (dashing)
+        {
+            desiredMoveSpeed = dashSpeed;
+        } else if (sd.sliding)
+        {
+            state = movementState.sliding;
+
+            if (onSlope() && rb.velocity.y < 0.1f)
+                desiredMoveSpeed = slideSpeed;
+            else
+                desiredMoveSpeed = sprintSpeed;
+        } else if (Input.GetKey(KeyCode.LeftControl))
+        {
+            state = movementState.crouching;
+            desiredMoveSpeed = crouchSpeed;
+        } else if (grounded && Input.GetKey(KeyCode.LeftShift))
+        {
+            state = movementState.sprinting;
+            desiredMoveSpeed = sprintSpeed;
+        }
+        else if (grounded)
+        {
+            state = movementState.walking;
+            desiredMoveSpeed = moveSpeed;
+        }
+        else
+        {
+            state = movementState.air;
+        }
+
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && speed != 0)
+        {
+            StopAllCoroutines();
+            StartCoroutine(smoothlyLerpSpeed());
+        }
+        else
+        {
+            speed = desiredMoveSpeed;
+        }
+
+        lastDesiredMoveSpeed = desiredMoveSpeed;
+        
+
+    }
+
+    public bool addDrag()
+    {
+        return state == movementState.walking || state == movementState.crouching || state == movementState.sprinting || state == movementState.sliding;
+    }
+    
  
 }

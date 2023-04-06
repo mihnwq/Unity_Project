@@ -16,7 +16,7 @@ public class Sliding
     }
 
     public float maxSlideTime = 0.75f;
-    public float slideForce = 200f;
+    public float slideForce = 50f;
     public float sliderTimer;
 
     public float slideYScale = 0.5f;
