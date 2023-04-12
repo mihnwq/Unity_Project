@@ -20,6 +20,8 @@ public class Player : Entity
     
     public float crouchSpeed = 1.5f;
 
+    public float dashSpeedChangeFacotr = 50f;
+
     Jumping jump;
     Crouching cr;
     Sliding sd;
@@ -72,14 +74,15 @@ public class Player : Entity
 
         base.Update();
         
-        Debug.Log(desiredMoveSpeed);
-
+        
+      
     }
 
     public void Move()
     {
         updateAxis(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
+        if(!dashing)
         entityMovement();
 
     }
@@ -148,7 +151,7 @@ public class Player : Entity
         }
     }
     
-    public IEnumerator smoothlyLerpSpeed()
+    public IEnumerator smoothlyLerpSlopeSpeed()
     {
         float time = 0;
         float difference = Mathf.Abs(desiredMoveSpeed = moveSpeed);
@@ -164,11 +167,37 @@ public class Player : Entity
         speed = desiredMoveSpeed;
     }
 
+    private float speedChangeFacotr;
+    public IEnumerator smoothlyLerpDashSpeed()
+    {
+        float time = 0;
+        float difference = Mathf.Abs(desiredMoveSpeed = moveSpeed);
+        float startValue = moveSpeed;
+
+        float boastFactor = speedChangeFacotr;
+
+        while (time < difference)
+        {
+            speed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
+            time += Time.deltaTime * boastFactor;
+            yield return null;
+        }
+
+        speed = desiredMoveSpeed;
+        speedChangeFacotr = 1f;
+        keepMomentum = false;
+    }
+
+    private bool keepMomentum = false;
+    private movementState lastState;
+    
     private void StateHandler()
     {
         if (dashing)
         {
+            state = movementState.dash;
             desiredMoveSpeed = dashSpeed;
+            speedChangeFacotr = dashSpeedChangeFacotr;
         } else if (sd.sliding)
         {
             state = movementState.sliding;
@@ -194,20 +223,40 @@ public class Player : Entity
         else
         {
             state = movementState.air;
+
+            if (desiredMoveSpeed < sprintSpeed)
+                desiredMoveSpeed = moveSpeed;
+            else desiredMoveSpeed = sprintSpeed;
         }
 
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && speed != 0)
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && speed != 0 && onSlope())
         {
             StopAllCoroutines();
-            StartCoroutine(smoothlyLerpSpeed());
+            StartCoroutine(smoothlyLerpSlopeSpeed());
         }
         else
         {
-            speed = desiredMoveSpeed;
+            bool hasChanged = desiredMoveSpeed != lastDesiredMoveSpeed;
+            if (lastState == movementState.dash) keepMomentum = true;
+
+
+            if (hasChanged)
+            {
+                if (keepMomentum)
+                {
+                    StopAllCoroutines();
+                    StartCoroutine(smoothlyLerpDashSpeed());
+                }
+                else
+                {
+                    StopAllCoroutines();
+                    speed = desiredMoveSpeed;
+                }
+            }
         }
 
         lastDesiredMoveSpeed = desiredMoveSpeed;
-        
+        lastState = state;
 
     }
 
