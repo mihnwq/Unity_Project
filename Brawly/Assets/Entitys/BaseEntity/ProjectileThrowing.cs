@@ -18,10 +18,14 @@ public class ProjectileThrowing : MonoBehaviour
     public float throwUpwardForce;
 
     public bool readyToThrow;
+    
+
+    public float mouseSensitivity = 3.0f;
 
     public void Start()
     {
         readyToThrow = true;
+        
     }
 
     public void Update()
@@ -36,14 +40,20 @@ public class ProjectileThrowing : MonoBehaviour
     {
         readyToThrow = false;
 
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        
+        
         //shit needs tuning
-        Vector3 positionMultiplier = new Vector3(2f, 2f, 2f);
+        Vector3 positionMultiplier = new Vector3(1f, 0.5f, 0.5f);
 
         //the creation of the object and it's rotation and position
         //can be made to be spawned in the player and have the direction of the mouse
         //all to be added for later parts of the game
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position + positionMultiplier, throwDirection.rotation);
+      //  GameObject projectile = Instantiate(objectToThrow, attackPoint.position + positionMultiplier, throwDirection.rotation);
 
+      GameObject projectile = Instantiate(objectToThrow, attackPoint.position + positionMultiplier, attackPoint.rotation);
+      
         Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
 
         Vector3 forceDirection = throwDirection.transform.forward;
