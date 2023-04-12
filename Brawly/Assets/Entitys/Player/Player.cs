@@ -130,7 +130,7 @@ public class Player : Entity
 
     public void checkSlide()
     {
-        if (Input.GetKeyDown(KeyCode.F) && (horizontal != 0 || vertical != 0) && rb.velocity.magnitude > 3f)
+        if (Input.GetKeyDown(KeyCode.F) && (horizontal != 0 || vertical != 0) && rb.velocity.magnitude > 3f && state != movementState.air)
         {
             sd.startSliding();
         }

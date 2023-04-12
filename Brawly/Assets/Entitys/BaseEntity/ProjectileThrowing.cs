@@ -19,6 +19,9 @@ public class ProjectileThrowing : MonoBehaviour
 
     public bool readyToThrow;
     
+    Quaternion angle;
+    Quaternion transformPos;
+    Quaternion finalAngle;
 
     public float mouseSensitivity = 3.0f;
 
@@ -40,23 +43,17 @@ public class ProjectileThrowing : MonoBehaviour
     {
         readyToThrow = false;
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
-        
-        
-        //shit needs tuning
-        Vector3 positionMultiplier = new Vector3(1f, 0.5f, 0.5f);
-
-        //the creation of the object and it's rotation and position
-        //can be made to be spawned in the player and have the direction of the mouse
-        //all to be added for later parts of the game
+       
       //  GameObject projectile = Instantiate(objectToThrow, attackPoint.position + positionMultiplier, throwDirection.rotation);
 
-      GameObject projectile = Instantiate(objectToThrow, attackPoint.position + positionMultiplier, attackPoint.rotation);
+
+      Vector3 position_multiplier = new Vector3(0.5f,0,0.5f);
+      
+      GameObject projectile = Instantiate(objectToThrow, attackPoint.position + position_multiplier, attackPoint.rotation);
       
         Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
 
-        Vector3 forceDirection = throwDirection.transform.forward;
+      /*  Vector3 forceDirection = throwDirection.transform.forward;
 
         RaycastHit hit;
 
@@ -65,7 +62,10 @@ public class ProjectileThrowing : MonoBehaviour
             forceDirection = (hit.point - attackPoint.position).normalized;
         }
 
-        Vector3 foreceToAdd = forceDirection * throwForce + transform.up * throwForce;
+        Vector3 foreceToAdd = forceDirection * throwForce + transform.forward * throwForce;
+    */
+
+      Vector3 foreceToAdd = attackPoint.forward * throwForce;
         
         projectileRb.AddForce(foreceToAdd,ForceMode.Impulse);
 
