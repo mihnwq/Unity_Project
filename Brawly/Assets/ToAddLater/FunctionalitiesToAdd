@@ -52,3 +52,19 @@ The code:
          
                  return finalDir;
              }*/
+             
+             
+             
+             Attack system to implement:
+             
+             /*basic example
+             
+             hitInfo = the object we are hiting;
+             enemy = layerMask that sees if we hit a specific object;
+             
+             bool hit = Physics.Raycast(transform.position, Vector3.forward, out RaycastHit hitInfo, Width * 0.5f + 0.2f, enemy);
+             if (hit) {
+               MyEnemy enemy = hitInfo.collider.GetComponent<MyEnemy>();
+               enemy.TakeDamage(5);
+             }
+             */
