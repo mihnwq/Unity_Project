@@ -83,7 +83,7 @@ public class Player : Entity
         updateAxis(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if(!dashing)
-        entityMovement();
+        entityMovement(true);
 
     }
 

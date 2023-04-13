@@ -54,12 +54,34 @@ public class Entity : MonoBehaviour
        
    }
 
+   public bool isLocked = false;
 
-   public void entityMovement()
+   public void checkedLocked()
    {
-       moveDirection = orientation.forward * vertical + orientation.right * horizontal;
+       if (Input.GetKeyDown(KeyCode.Tab) && !isLocked)
+       {
+           isLocked = true;
+       }else if (Input.GetKeyDown(KeyCode.Tab) && isLocked)
+       {
+           isLocked = false;
+       }
+   }
+   
+   public void entityMovement(bool isPlayer)
+   {
        
+       checkedLocked();
 
+       if (isLocked && isPlayer)
+       {
+           moveDirection = playerObj.forward * vertical + playerObj.right * horizontal;
+       }
+       else
+       {
+           moveDirection = orientation.forward * vertical + orientation.right * horizontal;
+       }
+       
+       
        if (onSlope() && !ChainVars.exitSlope)
        {
            Vector3 slopeDir = getSlopeMovementDir(moveDirection);
