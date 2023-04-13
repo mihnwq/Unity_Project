@@ -68,3 +68,18 @@ The code:
                enemy.TakeDamage(5);
              }
              */
+             
+             
+             Make a better way to check all directions:
+             public Entity checkEntityHit(LayerMask entityMask)
+                {
+             
+                    if (Physics.Raycast(transform.position,Vector3.forward,out entityHit,5f,entityMask) || Physics.Raycast(transform.position,Vector3.left,out entityHit,5f,entityMask) || Physics.Raycast(transform.position,Vector3.right,out entityHit,5f,entityMask) || Physics.Raycast(transform.position,Vector3.back,out entityHit,5f,entityMask))
+                    {
+                        Entity currentEntity = entityHit.collider.GetComponent<Entity>();
+             
+                        return currentEntity;
+                    }
+             
+                    return null;
+                }
