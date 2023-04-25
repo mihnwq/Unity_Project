@@ -103,6 +103,11 @@ public class Player : Entity
         {
             cr.crouch();
         }
+
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            cr.normalize();
+        }
     }
     
 
@@ -130,16 +135,12 @@ public class Player : Entity
 
     public void checkSlide()
     {
-        if (Input.GetKeyDown(KeyCode.F) && (horizontal != 0 || vertical != 0) && rb.velocity.magnitude > 3f && state != movementState.air)
+        if (Input.GetKeyDown(KeyCode.F) && rb.velocity.magnitude > 3f && state != movementState.air)
         {
             sd.startSliding();
         }
         
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            cr.normalize();
-        }
-
+        
         if (Input.GetKeyUp(KeyCode.F) && sd.sliding)
         {
             sd.stopSlide();
