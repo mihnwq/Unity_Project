@@ -25,7 +25,7 @@ public class Dashing : MonoBehaviour
     public float dashCd = 1f;
     public float dashCdTimer = 0f;
 
-    public void Update()
+    public void dashUpdate()
     {
         if(Input.GetKeyDown(KeyCode.C))
             Dash();

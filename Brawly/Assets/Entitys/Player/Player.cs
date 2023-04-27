@@ -25,6 +25,7 @@ public class Player : Entity
     Jumping jump;
     Crouching cr;
     Sliding sd;
+    Dashing dash;
 
     public enum movementState
     {
@@ -47,6 +48,7 @@ public class Player : Entity
         jump = new Jumping(transform, rb);
         cr = new Crouching(transform, rb);
         sd = new Sliding(orientation, playerObj, rb);
+        dash = GetComponent<Dashing>();
 
         health = 100;
 
@@ -93,6 +95,7 @@ public class Player : Entity
         checkJump();
         checkCrouch();
         checkSlide();
+        dash.dashUpdate();
     }
 
   
