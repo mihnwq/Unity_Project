@@ -44,9 +44,9 @@ public class Player : Entity
     public override void Start()
     {
         base.Start();
-        
+
         jump = new Jumping(transform, rb);
-        cr = new Crouching(transform, rb);
+        cr = new Crouching(playerObj, entityCollider);
         sd = new Sliding(orientation, playerObj, rb);
         dash = GetComponent<Dashing>();
 
@@ -57,11 +57,12 @@ public class Player : Entity
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
+        entityCollider = GetComponent<CapsuleCollider>();
+
         groundDrag = 5f;
 
-        Height = 1;
+        Height = 13;
 
-        cr.startYScale = transform.localScale.y;
         sd.startYScale = transform.localScale.y;
     }
 

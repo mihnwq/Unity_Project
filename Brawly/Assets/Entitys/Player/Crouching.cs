@@ -2,27 +2,31 @@ using UnityEngine;
 
 public class Crouching
 {
-    public float crouchYScale = 0.5f;
-    public float startYScale;
+    HitboxChange hc;
 
      Transform tf;
-     Rigidbody rb;
+     CapsuleCollider hitbox;
 
-     public Crouching(Transform tf, Rigidbody rb)
+     public Crouching(Transform tf,CapsuleCollider hitbox)
      {
          this.tf = tf;
-         this.rb = rb;
+        this.hitbox = hitbox;
+
+        hc = new HitboxChange(hitbox, tf);
      }
 
     public void crouch()
     {
-        tf.localScale = new Vector3(tf.localScale.x, crouchYScale, tf.localScale.z);
-        rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        /* tf.localScale = new Vector3(tf.localScale.x, crouchYScale, tf.localScale.z);
+         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);*/
+
+        hc.changeColliderCrouch(2);
     }
 
     public void normalize()
     {
-        tf.localScale = new Vector3(tf.localScale.x, startYScale, tf.localScale.z);
+        //  tf.localScale = new Vector3(tf.localScale.x, startYScale, tf.localScale.z);
+        hc.normalize();
     }
         
 }

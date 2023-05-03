@@ -13,7 +13,9 @@ public class Entity : MonoBehaviour
 
    //Entity direction and orientation
    public Vector3 moveDirection;
-   
+
+   public CapsuleCollider entityCollider;
+
    public float maxSlopeAngle;
    public RaycastHit slopeHit;
 
